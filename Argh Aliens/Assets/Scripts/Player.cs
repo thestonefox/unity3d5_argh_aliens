@@ -7,17 +7,22 @@ public class Player : MonoBehaviour {
     public float movementAcceleration = 0.25f;
     public float thrustPower = 50f;
 
+    public GameObject engineParticles;
+
     private Rigidbody rb;
     private float movementSpeed = 0f;
     private float moveInputValue;
     private float strafeSpeed = 0f;
     private float strafeInputValue;
     private float rotationInputValue;
+    private ParticleSystem engineParticleSystem;
+    private bool hasEngineFired;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-    }
+        engineParticleSystem = engineParticles.GetComponent<ParticleSystem>();
+}
 
     void Update()
     {
@@ -97,10 +102,26 @@ public class Player : MonoBehaviour {
     }
 
     void Thrust()
-    {
+    {        
         if (Input.GetButton("Fire1"))
         {
+            engineParticles.SetActive(true);
+            engineParticleSystem.loop = true;
+            if (!engineParticleSystem.IsAlive())
+            {
+                engineParticleSystem.startLifetime = 0.8f;
+                engineParticleSystem.Play();
+            }
+
             rb.AddForce(Vector3.up * thrustPower);
+            hasEngineFired = true;
+        } else
+        {
+            if (hasEngineFired)
+            {
+                engineParticleSystem.startLifetime = 0.5f;
+                engineParticleSystem.loop = false;
+            }
         }
     }
 }
