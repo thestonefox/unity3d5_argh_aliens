@@ -2,12 +2,16 @@
 using System.Collections;
 
 public class Player : MonoBehaviour {
-    public float movementMaxSpeed = 10f;
+    public float movementMaxSpeed = 20f;
     public float rotationSpeed = 180f;
     public float movementAcceleration = 0.25f;
     public float thrustPower = 50f;
+    public float terminalVelocity = 5f;
+    public bool isAlive;
 
+    public GameObject playerBody;
     public GameObject engineParticles;
+    public GameObject deathParticles;
 
     private Rigidbody rb;
     private float movementSpeed = 0f;
@@ -17,22 +21,40 @@ public class Player : MonoBehaviour {
     private float rotationInputValue;
     private ParticleSystem engineParticleSystem;
     private bool hasEngineFired;
+    private Vector3 previousVelocity;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         engineParticleSystem = engineParticles.GetComponent<ParticleSystem>();
-}
+        Revive();
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.tag == "IgnoreCollision" ||
+            (collision.collider.tag == "SafeCollision" && previousVelocity.y > -terminalVelocity))
+        {
+            //Collision is ok so do other checking here
+        } else
+        {
+            Die();
+        }
+    }
 
     void Update()
     {
-        GetInput();        
+        GetInput();
+        previousVelocity = rb.velocity;
     }
 	
 	void FixedUpdate () {
-        Move();
-        Turn();
-        Thrust();
+        if (isAlive)
+        {
+            Move();
+            Turn();
+            Thrust();
+        }
 	}
 
     void GetInput()
@@ -123,5 +145,21 @@ public class Player : MonoBehaviour {
                 engineParticleSystem.loop = false;
             }
         }
+    }
+
+    void Die()
+    {
+        rb.isKinematic = true;
+        playerBody.SetActive(false);
+        deathParticles.SetActive(true);
+        isAlive = false;
+    }
+
+    void Revive()
+    {
+        rb.isKinematic = false;
+        playerBody.SetActive(true);
+        deathParticles.SetActive(false);
+        isAlive = true;
     }
 }
