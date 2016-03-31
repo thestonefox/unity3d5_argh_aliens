@@ -153,9 +153,10 @@ public class Player : MonoBehaviour {
         playerBody.SetActive(false);
         deathParticles.SetActive(true);
         isAlive = false;
+        LevelManager.instance.PlayerDie();
     }
 
-    void Revive()
+    public void Revive()
     {
         rb.isKinematic = false;
         playerBody.SetActive(true);
