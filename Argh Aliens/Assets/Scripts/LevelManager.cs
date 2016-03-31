@@ -3,13 +3,13 @@ using System.Collections;
 
 public class LevelManager : MonoBehaviour {
 
-    public Vector3 levelDimensions = new Vector3(100f, 1f, 100f);
+    public Vector3 levelDimensions = new Vector3(75f, 1f, 75f);
     public GameObject playArea;
     public GameObject player;
     public GameObject building;
     public GameObject buildingTop;
 
-    public float maxBuildingHeight = 35f;
+    public float maxBuildingHeight = 20f;
     public int lives = 3;
 
     public static LevelManager instance = null;
@@ -67,7 +67,7 @@ public class LevelManager : MonoBehaviour {
         {
             for (int z = 0; z < buildingLimits.z; z++)
             {
-                float buildingHeight = Random.Range(5f, buildingLimits.y);
+                float buildingHeight = Random.Range(8f, buildingLimits.y);
 
                 for (int y = 0; y < buildingHeight; y++)
                 {

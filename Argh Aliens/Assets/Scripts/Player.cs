@@ -22,12 +22,38 @@ public class Player : MonoBehaviour {
     private ParticleSystem engineParticleSystem;
     private bool hasEngineFired;
     private Vector3 previousVelocity;
+    private Vector3[] cameraPositions;
+    private Vector3[] cameraRotations;
+    private int currentCameraView = 0;
 
     void Awake()
     {
+        CreateCameras();
+        UpdateCameraView();
         rb = GetComponent<Rigidbody>();
         engineParticleSystem = engineParticles.GetComponent<ParticleSystem>();
         Revive();
+    }
+
+    void CreateCameras()
+    {
+        cameraPositions = new Vector3[3];
+        cameraRotations = new Vector3[3];
+
+        cameraPositions[0] = new Vector3(0f, 1.5f, -4f);
+        cameraRotations[0] = new Vector3(25f, 0f, 0f);
+
+        cameraPositions[1] = new Vector3(0f, 7f, 0f);
+        cameraRotations[1] = new Vector3(90f, 0f, 0f);
+
+        cameraPositions[2] = new Vector3(0f, 0.35f, -0.2f);
+        cameraRotations[2] = new Vector3(0f, 0f, 0f);
+    }
+
+    void UpdateCameraView()
+    {
+        gameObject.transform.Find("PlayerCamera").gameObject.transform.localPosition = cameraPositions[currentCameraView];
+        gameObject.transform.Find("PlayerCamera").gameObject.transform.localRotation = Quaternion.Euler(cameraRotations[currentCameraView].x, cameraRotations[currentCameraView].y, cameraRotations[currentCameraView].z);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -55,7 +81,8 @@ public class Player : MonoBehaviour {
             Turn();
             Thrust();
         }
-	}
+        SwitchCamera();
+    }
 
     void GetInput()
     {
@@ -144,6 +171,19 @@ public class Player : MonoBehaviour {
                 engineParticleSystem.startLifetime = 0.5f;
                 engineParticleSystem.loop = false;
             }
+        }
+    }
+
+    void SwitchCamera()
+    {
+        if (Input.GetButtonDown("Fire2"))
+        {
+            currentCameraView++;
+            if (currentCameraView >= cameraPositions.Length)
+            {
+                currentCameraView = 0;
+            }
+            UpdateCameraView();
         }
     }
 
