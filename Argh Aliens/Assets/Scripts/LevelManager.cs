@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour {
     public static LevelManager instance = null;
 
     private Vector3 areaOffset;
+    private GameObject[,,] buildingBlocks;
 
     // Use this for initialization
     void Start () {
@@ -60,6 +61,8 @@ public class LevelManager : MonoBehaviour {
                                              maxBuildingHeight,
                                              (levelDimensions.z - (areaOffset.z * 2)) / (building.transform.localScale.z * 2));
 
+        buildingBlocks = new GameObject[(int)buildingLimits.x, (int)buildingLimits.y, (int)buildingLimits.z];
+
         for (int x = 0; x < buildingLimits.x; x++)
         {
             for (int z = 0; z < buildingLimits.z; z++)
@@ -73,14 +76,34 @@ public class LevelManager : MonoBehaviour {
                                                       startPos.z - (z * (building.transform.localScale.z * 2)));
 
 
-                    Instantiate(building, buildingPos, Quaternion.identity);
-                    if (y == (int)buildingHeight)
+                    GameObject buildingObject = new GameObject();
+
+                    if (y < (int)buildingHeight)
                     {
-                        Instantiate(buildingTop, buildingPos + new Vector3(0f, 0.4f, 0f), Quaternion.identity);
+                        buildingObject = Instantiate(building, buildingPos, Quaternion.identity) as GameObject;
+                    } else
+                    {
+                        buildingObject = Instantiate(buildingTop, buildingPos + new Vector3(0f, -0.6f, 0f), Quaternion.identity) as GameObject;
                     }
+
+                    buildingObject.GetComponent<BuildingBlock>().coords = new Vector3(x, y, z);
+                    buildingObject.GetComponent<BuildingBlock>().buildingHeight = buildingHeight;
+                    buildingBlocks[x, y, z] = buildingObject;
                 }
             }
         }
+    }
+
+    public void BlowUpBuildingAbove(Vector3 coords)
+    {
+        GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y + 1, (int)coords.z];
+        buildingObject.GetComponent<BuildingBlock>().Destroy(false);
+    }
+
+    public void SetFireBuildingBelow(Vector3 coords)
+    {
+        GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y - 1, (int)coords.z];
+        buildingObject.GetComponent<BuildingBlock>().OnFire();
     }
 	
 	// Update is called once per frame
