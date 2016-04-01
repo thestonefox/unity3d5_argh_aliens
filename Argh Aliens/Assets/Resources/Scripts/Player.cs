@@ -7,11 +7,13 @@ public class Player : MonoBehaviour {
     public float movementAcceleration = 0.25f;
     public float thrustPower = 50f;
     public float terminalVelocity = 5f;
+    public int bombCount = 20;
     public bool isAlive;
 
     public GameObject playerBody;
     public GameObject engineParticles;
     public GameObject deathParticles;
+    public GameObject bombBody;
 
     private Rigidbody rb;
     private float movementSpeed = 0f;
@@ -25,14 +27,47 @@ public class Player : MonoBehaviour {
     private Vector3[] cameraPositions;
     private Vector3[] cameraRotations;
     private int currentCameraView = 0;
+    private GameObject[] bombs;
+    private int currentBomb = 0;
+    private int bombDelay = 0;
+    private int bombDelayTimer = 10;
 
     void Awake()
     {
         CreateCameras();
         UpdateCameraView();
+        CreateBombs();
         rb = GetComponent<Rigidbody>();
-        engineParticleSystem = engineParticles.GetComponent<ParticleSystem>();
+        engineParticleSystem = engineParticles.GetComponent<ParticleSystem>();        
         Revive();
+    }
+
+    void CreateBombs()
+    {
+        bombs = new GameObject[bombCount];
+        for(int i = 0; i < bombCount; i++)
+        {
+            bombs[i] = Instantiate(bombBody, transform.position, Quaternion.identity) as GameObject;
+        }
+    }
+
+    void DropBomb()
+    {
+        if (Input.GetButtonDown("Fire3") && bombDelay == 0)
+        {
+            bombDelay = bombDelayTimer;
+            bombs[currentBomb].SetActive(true);
+            bombs[currentBomb].transform.localPosition = gameObject.transform.localPosition + new Vector3(0f, -0.5f, 0f);
+            bombs[currentBomb].GetComponent<Rigidbody>().rotation = Quaternion.identity;
+            bombs[currentBomb].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.up * -500f);
+            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.forward + (rb.transform.forward * 50));
+            currentBomb++;
+            if (currentBomb >= bombCount)
+            {
+                currentBomb = 0;
+            }
+        }
     }
 
     void CreateCameras()
@@ -70,9 +105,14 @@ public class Player : MonoBehaviour {
 
     void Update()
     {
-        GetInput();
+        GetInput();        
         SwitchCamera();
         previousVelocity = rb.velocity;
+        bombDelay--;
+        if(bombDelay < 0)
+        {
+            bombDelay = 0;
+        }
     }
 	
 	void FixedUpdate () {
@@ -81,6 +121,7 @@ public class Player : MonoBehaviour {
             Move();
             Turn();
             Thrust();
+            DropBomb();
         }
     }
 
