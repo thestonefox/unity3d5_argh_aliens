@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour {
 
     private Vector3 areaOffset;
     private GameObject[,,] buildingBlocks;
+    private bool paused;
 
     // Use this for initialization
     void Start () {
@@ -106,6 +107,28 @@ public class LevelManager : MonoBehaviour {
         }
     }
 
+    void Update()
+    {
+        CheckPause();
+    }
+
+    void CheckPause()
+    {
+        if (Input.GetButtonDown("Start"))
+        {
+            Debug.Log("Paused");
+            paused = !paused;
+        }
+        if (paused)
+        {
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
+    }
+
     public void BlowUpBuildingAbove(Vector3 coords)
     {
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y + 1, (int)coords.z];
@@ -117,11 +140,6 @@ public class LevelManager : MonoBehaviour {
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y - 1, (int)coords.z];
         buildingObject.GetComponent<BuildingBlock>().OnFire();
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     public void PlayerDie()
     {
