@@ -31,6 +31,8 @@ public class Player : MonoBehaviour {
     private int currentBomb = 0;
     private int bombDelay = 0;
     private int bombDelayTimer = 10;
+    private bool landed;
+    private float speedDeadzone = 1f;
 
     void Awake()
     {
@@ -48,25 +50,6 @@ public class Player : MonoBehaviour {
         for(int i = 0; i < bombCount; i++)
         {
             bombs[i] = Instantiate(bombBody, transform.position, Quaternion.identity) as GameObject;
-        }
-    }
-
-    void DropBomb()
-    {
-        if (Input.GetButtonDown("Fire3") && bombDelay == 0)
-        {
-            bombDelay = bombDelayTimer;
-            bombs[currentBomb].SetActive(true);
-            bombs[currentBomb].transform.localPosition = gameObject.transform.localPosition + new Vector3(0f, -0.5f, 0f);
-            bombs[currentBomb].GetComponent<Rigidbody>().rotation = Quaternion.identity;
-            bombs[currentBomb].GetComponent<Rigidbody>().velocity = Vector3.zero;
-            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.up * -500f);
-            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.forward + (rb.transform.forward * 50));
-            currentBomb++;
-            if (currentBomb >= bombCount)
-            {
-                currentBomb = 0;
-            }
         }
     }
 
@@ -96,11 +79,16 @@ public class Player : MonoBehaviour {
         if (collision.collider.tag == "IgnoreCollision" ||
             (collision.collider.tag == "SafeCollision" && previousVelocity.y > -terminalVelocity))
         {
-            //Collision is ok so do other checking here
+            landed = true;
         } else
         {
             Die();
         }
+    }
+
+    void OnCollisionExit()
+    {
+        landed = false;
     }
 
     void Update()
@@ -127,26 +115,12 @@ public class Player : MonoBehaviour {
 
     void GetInput()
     {
-        Vector2 leftStick = StickInput(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        Vector2 rudder = StickInput(Input.GetAxis("TriggerAxis"), 0f);
-        moveInputValue = leftStick.y;
-        rotationInputValue = leftStick.x;
-        strafeInputValue = rudder.x;
+        moveInputValue = Input.GetAxis("Vertical");
+        rotationInputValue = Input.GetAxis("Horizontal");
+        strafeInputValue = Input.GetAxis("Rudder");
 
         movementSpeed = CalculatetSpeed(moveInputValue, movementSpeed, movementMaxSpeed, movementAcceleration);
         strafeSpeed = CalculatetSpeed(strafeInputValue, strafeSpeed, movementMaxSpeed, movementAcceleration);
-    }
-
-    Vector2 StickInput(float xAxis, float yAxis)
-    {
-        float deadzone = 0.25f;
-        Vector2 stickInput = new Vector2(xAxis, yAxis);
-        if (stickInput.magnitude < deadzone)
-            stickInput = Vector2.zero;
-        else
-            stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
-
-        return stickInput;
     }
 
     float CalculatetSpeed(float inputValue, float speed, float maxSpeed, float acceleration)
@@ -165,6 +139,11 @@ public class Player : MonoBehaviour {
 
     float CalculateDeceleration(float speed, float acceleration)
     {
+        if (speed < speedDeadzone && speed > -speedDeadzone)
+        {
+            return 0;
+        }
+
         if (speed > 0)
         {
             return speed - acceleration;
@@ -181,6 +160,11 @@ public class Player : MonoBehaviour {
     {
         Vector3 move = transform.forward * movementSpeed * Time.deltaTime;
         Vector3 strafe = transform.right * strafeSpeed * Time.deltaTime;
+        if (landed)
+        {
+            move = Vector3.zero;
+            strafe = Vector3.zero;
+        }
         rb.MovePosition(rb.position + (move + strafe));
     }
 
@@ -193,7 +177,7 @@ public class Player : MonoBehaviour {
 
     void Thrust()
     {        
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Jump"))
         {
             engineParticles.SetActive(true);
             engineParticleSystem.loop = true;
@@ -215,9 +199,28 @@ public class Player : MonoBehaviour {
         }
     }
 
+    void DropBomb()
+    {
+        if (Input.GetButtonDown("Fire2") && bombDelay == 0)
+        {
+            bombDelay = bombDelayTimer;
+            bombs[currentBomb].SetActive(true);
+            bombs[currentBomb].transform.localPosition = gameObject.transform.localPosition + new Vector3(0f, -0.5f, 0f);
+            bombs[currentBomb].GetComponent<Rigidbody>().rotation = Quaternion.identity;
+            bombs[currentBomb].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.up * -500f);
+            bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.forward + (rb.transform.forward * 50));
+            currentBomb++;
+            if (currentBomb >= bombCount)
+            {
+                currentBomb = 0;
+            }
+        }
+    }
+
     void SwitchCamera()
     {
-        if (Input.GetButtonDown("Fire2"))
+        if (Input.GetButtonDown("Fire3"))
         {
             currentCameraView++;
             if (currentCameraView >= cameraPositions.Length)
@@ -243,5 +246,6 @@ public class Player : MonoBehaviour {
         playerBody.SetActive(true);
         deathParticles.SetActive(false);
         isAlive = true;
+        landed = false;
     }
 }
