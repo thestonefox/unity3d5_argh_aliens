@@ -9,6 +9,7 @@ public class Player : MonoBehaviour {
     public float terminalVelocity = 5f;
     public int bombCount = 20;
     public bool isAlive;
+    public float defaultFuel = 1000f;
 
     public GameObject playerBody;
     public GameObject engineParticles;
@@ -33,6 +34,7 @@ public class Player : MonoBehaviour {
     private int bombDelayTimer = 10;
     private bool landed;
     private float speedDeadzone = 1f;
+    private float fuel;
 
     void Awake()
     {
@@ -177,7 +179,7 @@ public class Player : MonoBehaviour {
 
     void Thrust()
     {        
-        if (Input.GetButton("Jump"))
+        if (Input.GetButton("Jump") && fuel > 0)
         {
             engineParticles.SetActive(true);
             engineParticleSystem.loop = true;
@@ -188,6 +190,7 @@ public class Player : MonoBehaviour {
             }
 
             rb.AddForce(Vector3.up * thrustPower);
+            fuel--;
             hasEngineFired = true;
         } else
         {
@@ -201,7 +204,7 @@ public class Player : MonoBehaviour {
 
     void DropBomb()
     {
-        if (Input.GetButtonDown("Fire2") && bombDelay == 0)
+        if (!landed && Input.GetButtonDown("Fire2") && bombDelay == 0)
         {
             bombDelay = bombDelayTimer;
             bombs[currentBomb].SetActive(true);
@@ -247,5 +250,6 @@ public class Player : MonoBehaviour {
         deathParticles.SetActive(false);
         isAlive = true;
         landed = false;
+        fuel = defaultFuel;
     }
 }
