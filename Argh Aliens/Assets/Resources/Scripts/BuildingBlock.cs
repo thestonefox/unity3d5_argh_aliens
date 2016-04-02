@@ -31,6 +31,7 @@ public class BuildingBlock : MonoBehaviour {
 
     public void OnFire()
     {
+        gameObject.transform.Find("Roof").GetComponent<MeshRenderer>().material.color = new Color(1f, 1f, 1f);
         gameObject.transform.Find("BuildingFire").gameObject.SetActive(true);
     }
 }

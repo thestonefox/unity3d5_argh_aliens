@@ -27,6 +27,11 @@ public class Player : MonoBehaviour {
     private Vector3 previousVelocity;
     private Vector3[] cameraPositions;
     private Vector3[] cameraRotations;
+
+    private Vector3[] cameraRayPositions;
+    private Vector3[] cameraRayRotations;
+    private Vector3[] cameraRayScales;
+
     private int currentCameraView = 0;
     private GameObject[] bombs;
     private int currentBomb = 0;
@@ -59,30 +64,52 @@ public class Player : MonoBehaviour {
     {
         cameraPositions = new Vector3[3];
         cameraRotations = new Vector3[3];
+        cameraRayPositions = new Vector3[3];
+        cameraRayRotations = new Vector3[3];
+        cameraRayScales = new Vector3[3];
 
         cameraPositions[0] = new Vector3(0f, 1.5f, -4f);
         cameraRotations[0] = new Vector3(25f, 0f, 0f);
+        cameraRayPositions[0] = new Vector3(0f, 1.7f, -2.5f);
+        cameraRayRotations[0] = new Vector3(5f, 0f, 0f);
+        cameraRayScales[0] = new Vector3(2f, 2.5f, 4f);
 
         cameraPositions[1] = new Vector3(0f, 7f, 0f);
         cameraRotations[1] = new Vector3(90f, 0f, 0f);
+        cameraRayPositions[1] = new Vector3(0f, 3.5f, 0f);
+        cameraRayRotations[1] = new Vector3(90f, 0f, 0f);
+        cameraRayScales[1] = new Vector3(0.7f, 0.7f, 7f);
 
-        cameraPositions[2] = new Vector3(0f, 0.35f, -0.2f);
+        cameraPositions[2] = new Vector3(0f, 0.35f, -0.13f);
         cameraRotations[2] = new Vector3(0f, 0f, 0f);
+        cameraRayPositions[2] = new Vector3(0f, 3.5f, 0f);
+        cameraRayRotations[2] = new Vector3(90f, 0f, 0f);
+        cameraRayScales[2] = new Vector3(0.7f, 0.7f, 7f);
     }
 
     void UpdateCameraView()
     {
         gameObject.transform.Find("PlayerCamera").gameObject.transform.localPosition = cameraPositions[currentCameraView];
         gameObject.transform.Find("PlayerCamera").gameObject.transform.localRotation = Quaternion.Euler(cameraRotations[currentCameraView].x, cameraRotations[currentCameraView].y, cameraRotations[currentCameraView].z);
+
+        gameObject.transform.Find("CameraRay").gameObject.transform.localPosition = cameraRayPositions[currentCameraView];
+        gameObject.transform.Find("CameraRay").gameObject.transform.localRotation = Quaternion.Euler(cameraRayRotations[currentCameraView].x, cameraRayRotations[currentCameraView].y, cameraRayRotations[currentCameraView].z);
+        gameObject.transform.Find("CameraRay").gameObject.transform.localScale = cameraRayScales[currentCameraView];
+    }
+
+    bool hasLanded(Collision collision)
+    {
+        if(collision.collider.tag == "SafeCollision" && previousVelocity.y > -terminalVelocity)
+        {
+            landed = true;
+            return true;
+        }
+        return false;
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.tag == "IgnoreCollision" ||
-            (collision.collider.tag == "SafeCollision" && previousVelocity.y > -terminalVelocity))
-        {
-            landed = true;
-        } else
+        if (collision.collider.tag != "IgnoreCollision" && ! hasLanded(collision))
         {
             Die();
         }
@@ -91,6 +118,48 @@ public class Player : MonoBehaviour {
     void OnCollisionExit()
     {
         landed = false;
+    }
+
+    void ToggleBuildingRenderer(Collider collider, bool toggle)
+    {
+        collider.GetComponent<MeshRenderer>().enabled = toggle;
+        collider.transform.Find("Roof").GetComponent<MeshRenderer>().enabled = toggle;
+    }
+
+    void ToggleBuildingTopRenderer(Collider collider, bool toggle)
+    {
+        Transform parent = collider.transform.parent;
+        parent.transform.Find("SafeZone").GetComponent<MeshRenderer>().enabled = toggle;
+        for (int wall = 1; wall <= 4; wall++)
+        {
+            parent.transform.Find("Wall" + wall).GetComponent<MeshRenderer>().enabled = toggle;
+        }
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        if(collider.transform.name.Contains("BuildingBlock"))
+        {
+            ToggleBuildingRenderer(collider, false);
+        }
+
+        if(collider.transform.parent != null && collider.transform.parent.name.Contains("BuildingTop"))
+        {
+            ToggleBuildingTopRenderer(collider, false);
+        }
+    }
+
+    void OnTriggerExit(Collider collider)
+    {
+        if (collider.transform.name.Contains("BuildingBlock"))
+        {
+            ToggleBuildingRenderer(collider, true);
+        }
+
+        if(collider.transform.parent != null && collider.transform.parent.name.Contains("BuildingTop"))
+        {
+            ToggleBuildingTopRenderer(collider, true);
+        }
     }
 
     void Update()
