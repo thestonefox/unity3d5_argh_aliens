@@ -69,8 +69,8 @@ public class LevelManager : MonoBehaviour {
             for (int z = 0; z < buildingLimits.z; z++)
             {
                 float buildingHeight = Random.Range(8f, buildingLimits.y);
-                int buildingMaterialIndex = Random.Range(0, 4) + 1;
-                int buildingRoofMaterialIndex = Random.Range(0, 4) + 1;
+                int buildingMaterialIndex = Random.Range(0, 8) + 1;
+                int buildingRoofMaterialIndex = Random.Range(0, 8) + 1;
                 Material buildingMaterial = Resources.Load("Materials/Buildings/tower" + buildingMaterialIndex, typeof(Material)) as Material;
                 Material buildingTopMaterial = Resources.Load("Materials/Buildings/towertop" + buildingMaterialIndex, typeof(Material)) as Material;
                 Material buildingRoofMaterial = Resources.Load("Materials/Buildings/roof" + buildingRoofMaterialIndex, typeof(Material)) as Material;
