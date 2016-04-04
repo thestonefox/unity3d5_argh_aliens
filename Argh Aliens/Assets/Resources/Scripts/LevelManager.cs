@@ -2,13 +2,6 @@
 using System.Collections;
 
 public class LevelManager : MonoBehaviour {
-
-    public Vector3 levelDimensions = new Vector3(35f, 1f, 35f);
-    public int lives = 3;
-    public int maxLevelPeeps = 3;
-
-    public float maxBuildingHeight = 20f;
-
     public GameObject playArea;
     public GameObject player;
     public GameObject building;
@@ -16,6 +9,12 @@ public class LevelManager : MonoBehaviour {
     public GameObject peep;
 
     public static LevelManager instance = null;
+
+    private Vector3 levelDimensions;
+    private int lives;
+    private int maxLevelPeeps;
+    private float maxBuildingHeight = 20f;
+    private int score;
 
     private Vector3 areaOffset;
     private GameObject[,,] buildingBlocks;
@@ -37,8 +36,17 @@ public class LevelManager : MonoBehaviour {
 
     void Setup()
     {
+        InitLevelVars();
         InitPlayArea();
         ResetPlayer();
+    }
+
+    void InitLevelVars()
+    {
+        levelDimensions = GameManager.instance.levelDimensions;
+        lives = GameManager.instance.playerLives;
+        maxLevelPeeps = GameManager.instance.levelPeeps;
+        score = GameManager.instance.playerScore;
     }
 
     void InitPlayArea()
@@ -47,7 +55,6 @@ public class LevelManager : MonoBehaviour {
         playArea.transform.localScale = levelDimensions;
         InitBuildings();
         alivePeeps = maxLevelPeeps;
-
     }
 
     void ResetPlayer()
@@ -172,7 +179,6 @@ public class LevelManager : MonoBehaviour {
     {
         if (Input.GetButtonDown("Start"))
         {
-            Debug.Log("Paused");
             paused = !paused;
         }
         if (paused)
@@ -199,13 +205,21 @@ public class LevelManager : MonoBehaviour {
 
     public void PlayerDie()
     {
-        lives--;
+        UpdateLives();
         CheckLevelStatus();
         Invoke("ResetPlayer", 1f);
     }
 
     public void GotPeep(bool died)
     {
+        if (died)
+        {
+            UpdateScore(10);
+        } else
+        {
+            UpdateScore(50);
+            AddPlayerFuel(100);
+        }
         alivePeeps--;
         CheckLevelStatus();
     }
@@ -214,12 +228,29 @@ public class LevelManager : MonoBehaviour {
     {
         if (lives < 0)
         {
-            //GameOver
+            GameManager.instance.LoadScene("GameOver");
         }
 
         if (alivePeeps <= 0)
         {
-            //Next Level
+            GameManager.instance.LoadScene("NextLevel");
         }
+    }
+
+    void UpdateLives()
+    {
+        lives--;
+        GameManager.instance.playerLives = lives;
+    }
+
+    void UpdateScore(int scoreToAdd)
+    {
+        score += scoreToAdd;
+        GameManager.instance.playerScore = score;
+    }
+
+    void AddPlayerFuel(float fuelToAdd)
+    {
+        player.GetComponent<Player>().AddFuel(fuelToAdd);
     }
 }

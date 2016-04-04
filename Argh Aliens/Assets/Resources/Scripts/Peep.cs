@@ -46,11 +46,13 @@ public class Peep : MonoBehaviour {
 
     public void Die()
     {
+        GameManager.instance.peepsKilled++;
         Death(true);
     }
 
     public void Capture()
-    {        
+    {
+        GameManager.instance.peepsCaptured++;
         Death(false);
     }
 

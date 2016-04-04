@@ -270,6 +270,7 @@ public class Player : MonoBehaviour {
 
             rb.AddForce(Vector3.up * thrustPower);
             fuel--;
+            GameManager.instance.fuelUsed++;
             hasEngineFired = true;
         } else
         {
@@ -292,6 +293,8 @@ public class Player : MonoBehaviour {
             bombs[currentBomb].GetComponent<Rigidbody>().velocity = Vector3.zero;
             bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.up * -500f);
             bombs[currentBomb].GetComponent<Rigidbody>().AddForce(Vector3.forward + (rb.transform.forward * 50));
+
+            GameManager.instance.bombsDropped++;
             currentBomb++;
             if (currentBomb >= bombCount)
             {
@@ -330,8 +333,19 @@ public class Player : MonoBehaviour {
         rb.isKinematic = false;
         playerBody.SetActive(true);
         deathParticles.SetActive(false);
+        movementSpeed = 0;
         isAlive = true;
         landed = false;
         fuel = defaultFuel;
+    }
+
+    public void AddFuel(float fuelToAdd)
+    {
+        float newFuel = fuelToAdd + fuel;
+        if(newFuel > defaultFuel)
+        {
+            newFuel = defaultFuel;
+        }
+        fuel = newFuel;
     }
 }

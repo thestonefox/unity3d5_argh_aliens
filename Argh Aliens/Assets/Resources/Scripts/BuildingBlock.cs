@@ -28,9 +28,15 @@ public class BuildingBlock : MonoBehaviour {
                 LevelManager.instance.SetFireBuildingBelow(coords);
             }
 
-            if (coords.y < buildingHeight -1)
+            if (coords.y < buildingHeight - 1)
             {
                 LevelManager.instance.BlowUpBuildingAbove(coords);
+            }
+
+            GameManager.instance.buildingsDamaged++;
+            if (coords.y == 0)
+            {
+                GameManager.instance.buildingsDestroyed++;
             }
         }
     }
