@@ -130,6 +130,11 @@ public class LevelManager : MonoBehaviour {
 
     int[] CreatePeepLocations(int playArea, int maxPeeps)
     {
+        if (maxPeeps >= playArea)
+        {
+            maxPeeps = playArea;
+        }
+
         int[] locations = new int[playArea];
 
         for(int i = 0; i < playArea; i++)
