@@ -10,6 +10,8 @@ public class Player : MonoBehaviour {
     public int bombCount = 20;
     public bool isAlive;
     public float defaultFuel = 1000f;
+    public bool landed;
+    public float fuel;
 
     public GameObject playerBody;
     public GameObject engineParticles;
@@ -36,10 +38,8 @@ public class Player : MonoBehaviour {
     private GameObject[] bombs;
     private int currentBomb = 0;
     private int bombDelay = 0;
-    private int bombDelayTimer = 10;
-    private bool landed;
-    private float speedDeadzone = 1f;
-    private float fuel;
+    private int bombDelayTimer = 10;    
+    private float speedDeadzone = 1f;    
 
     void Awake()
     {
@@ -97,27 +97,37 @@ public class Player : MonoBehaviour {
         gameObject.transform.Find("CameraRay").gameObject.transform.localScale = cameraRayScales[currentCameraView];
     }
 
-    bool hasLanded(Collision collision)
-    {
+    void hasLanded(Collision collision)
+    {        
         if(collision.collider.tag == "SafeCollision" && previousVelocity.y > -terminalVelocity)
         {
             landed = true;
-            return true;
-        }
-        return false;
+        } else
+        {
+            landed = false;
+        }        
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.tag != "IgnoreCollision" && ! hasLanded(collision))
+        hasLanded(collision);
+        if (collision.collider.tag != "IgnoreCollision" && !landed)
         {
             Die();
         }
+
+        if (collision.collider.transform.parent != null && collision.collider.transform.parent.name.Contains("BuildingTop") && !landed)
+        {
+            collision.collider.transform.parent.GetComponent<BuildingBlock>().Destroy(true);
+        }
     }
 
-    void OnCollisionExit()
+    void OnCollisionExit(Collision collision)
     {
-        landed = false;
+        if (collision.collider.tag == "SafeCollision" && landed && rb.velocity.y > 0)
+        {
+            landed = false;
+        }
     }
 
     void ToggleBuildingRenderer(Collider collider, bool toggle)
@@ -138,7 +148,7 @@ public class Player : MonoBehaviour {
 
     void OnTriggerEnter(Collider collider)
     {
-        if(collider.transform.name.Contains("BuildingBlock"))
+        if (collider.transform.name.Contains("BuildingBlock"))
         {
             ToggleBuildingRenderer(collider, false);
         }
@@ -308,8 +318,11 @@ public class Player : MonoBehaviour {
         rb.isKinematic = true;
         playerBody.SetActive(false);
         deathParticles.SetActive(true);
-        isAlive = false;
-        LevelManager.instance.PlayerDie();
+        if (isAlive)
+        {
+            LevelManager.instance.PlayerDie();
+        }
+        isAlive = false;        
     }
 
     public void Revive()

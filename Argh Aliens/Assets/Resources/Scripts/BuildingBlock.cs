@@ -5,6 +5,7 @@ public class BuildingBlock : MonoBehaviour {
     public Vector3 coords;
     public GameObject explosionParticles;
     public float buildingHeight;
+    public GameObject peep;
 
     void OnCollisionEnter(Collision collision)
     {
@@ -17,13 +18,18 @@ public class BuildingBlock : MonoBehaviour {
         {
             Instantiate(explosionParticles, gameObject.transform.position, Quaternion.identity);
             gameObject.SetActive(false);
+            if (peep != null)
+            {
+                peep.GetComponent<Peep>().Die();
+            }
+
+            if (setFire && coords.y > 0)
+            {
+                LevelManager.instance.SetFireBuildingBelow(coords);
+            }
 
             if (coords.y < buildingHeight -1)
             {
-                if (setFire && coords.y > 0)
-                {
-                    LevelManager.instance.SetFireBuildingBelow(coords);
-                }
                 LevelManager.instance.BlowUpBuildingAbove(coords);
             }
         }
