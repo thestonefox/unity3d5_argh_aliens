@@ -47,6 +47,7 @@ public class LevelManager : MonoBehaviour {
         lives = GameManager.instance.playerLives;
         maxLevelPeeps = GameManager.instance.levelPeeps;
         score = GameManager.instance.playerScore;
+        Time.timeScale = 1f;
     }
 
     void InitPlayArea()
@@ -228,13 +229,19 @@ public class LevelManager : MonoBehaviour {
     {
         if (lives < 0)
         {
-            GameManager.instance.LoadScene("GameOver");
+            LevelEnd("GameOver");
         }
 
         if (alivePeeps <= 0)
         {
-            GameManager.instance.LoadScene("NextLevel");
+            LevelEnd("NextLevel");
         }
+    }
+
+    void LevelEnd(string nextScene)
+    {
+        Time.timeScale = 0f;
+        GameManager.instance.LoadScene(nextScene);
     }
 
     void UpdateLives()

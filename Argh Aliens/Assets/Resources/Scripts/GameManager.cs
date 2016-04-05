@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour {
     public int levelPeeps;
     public Vector3 levelDimensions;
 
+    public Texture2D transitionTexture;
+    public float transitionSpeed = 0.8f;
+
     public float fuelUsed;
     public int bombsDropped;
     public int peepsCaptured;
@@ -16,6 +19,11 @@ public class GameManager : MonoBehaviour {
     public int buildingsDestroyed;
 
     public static GameManager instance = null;
+
+    int transitionDrawDepth = -1000;
+    float transitionAlpha = 1f;
+    int transitionDirection = -1;
+    string sceneToLoad = "";
 
     void Start()
     {
@@ -30,8 +38,31 @@ public class GameManager : MonoBehaviour {
         }        
     }
 
+    void OnGUI()
+    {
+        transitionAlpha += transitionDirection * transitionSpeed * Time.deltaTime;
+        transitionAlpha = Mathf.Clamp01(transitionAlpha);
+
+        GUI.color = new Color(GUI.color.r, GUI.color.g, GUI.color.b, transitionAlpha);
+        GUI.depth = transitionDrawDepth;
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), transitionTexture);
+    }
+
+    void OnLevelWasLoaded()
+    {
+        transitionAlpha = 1f;
+        BeginTransition(-1);
+    }
+
+    void ChangeScene()
+    {
+        SceneManager.LoadScene(sceneToLoad);
+        sceneToLoad = "";
+    }
+
     void ResetLevel()
     {
+        sceneToLoad = "";
         fuelUsed = 0;
         bombsDropped = 0;
         peepsCaptured = 0;
@@ -42,6 +73,7 @@ public class GameManager : MonoBehaviour {
 
     public void ResetGame()
     {
+        sceneToLoad = "";
         playerLives = 3;
         playerScore = 0;
         levelPeeps = 3;
@@ -55,8 +87,16 @@ public class GameManager : MonoBehaviour {
         levelPeeps++;
     }
 
+    public float BeginTransition(int direction)
+    {
+        transitionDirection = direction;
+        return transitionSpeed;
+    }
+
     public void LoadScene(string name)
     {
-        SceneManager.LoadScene(name);
+        sceneToLoad = name;
+        float wait = BeginTransition(1);
+        Invoke("ChangeScene", wait);
     }
 }
