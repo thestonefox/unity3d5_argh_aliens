@@ -32,9 +32,40 @@ public class NextLevelScreen : MonoBehaviour {
         peepsCaptured.enabled = false;
         continueImage.enabled = false;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    void LayoutGUI()
+    {
+        float width = Screen.width;
+        float height = Screen.height;
+        int scoreFontSize = 30;
+        int finalFontSize = 50;
+        if (width <= 1280)
+        {
+            scoreFontSize = 18;
+            finalFontSize = 30;
+        }
+
+
+        fuelUsed.transform.localPosition = new Vector3(width / 7f, (height / 11f), 0f);
+        bombsDropped.transform.localPosition = new Vector3(width / 7f, (height / 28f), 0f);
+        buildingsDestroyed.transform.localPosition = new Vector3(width / 7f, -(height / 45f), 0f);
+        peepsKilled.transform.localPosition = new Vector3(width / 7f, -(height / 13f), 0f);
+        peepsCaptured.transform.localPosition = new Vector3(width / 7f, -(height / 7.5f), 0f);
+
+        fuelUsed.fontSize = scoreFontSize;
+        bombsDropped.fontSize = scoreFontSize;
+        buildingsDestroyed.fontSize = scoreFontSize;
+        peepsKilled.fontSize = scoreFontSize;
+        peepsCaptured.fontSize = scoreFontSize;
+
+        totalScore.transform.localPosition = new Vector3(width / 7f, -(height / 4.9f), 0f);
+
+        totalScore.fontSize = finalFontSize;
+    }
+
+    // Update is called once per frame
+    void Update () {
+        LayoutGUI();
         if(Input.GetButtonDown("Jump"))
         {
             if (scoreDisplayTimer >= 7 * scoreDisplayInterval)

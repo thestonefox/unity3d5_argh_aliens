@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour {
     public Text peepsText;
     public Image fuelIndicator;
     public Image countdownImage;
+    public Image hud;
 
     public static LevelManager instance = null;
 
@@ -49,6 +50,28 @@ public class LevelManager : MonoBehaviour {
         InitPlayArea();
         ResetPlayer();
         CountdownStart();
+    }
+
+    void LayoutHUD()
+    {
+        float width = Screen.width;
+        float height = Screen.height;
+        int fontSize = 28;
+        if (width <= 1024)
+        {
+            fontSize = 18;
+        }
+        
+        scoreText.transform.localPosition = new Vector3(-(width / 2.5f), (height / 2f) - 28f, 0f);
+        livesText.transform.localPosition = new Vector3((width / 2.87f), (height / 2f) - 28f, 0f);
+        peepsText.transform.localPosition = new Vector3((width / 2.24f), (height / 2f) - 28f, 0f);
+
+        scoreText.fontSize = fontSize;
+        livesText.fontSize = fontSize;
+        peepsText.fontSize = fontSize;
+
+        fuelIndicator.transform.localPosition = new Vector3(0f, (height / 2f) - 24f, 0f);
+        fuelIndicator.rectTransform.sizeDelta = new Vector2((width / 1.75f), 45f);
     }
 
     void InitLevelVars()
@@ -318,6 +341,7 @@ public class LevelManager : MonoBehaviour {
 
     void UpdateGui()
     {
+        LayoutHUD();
         scoreText.text = score.ToString().PadLeft(11, '0');
         livesText.text = lives.ToString();
         peepsText.text = alivePeeps.ToString();
