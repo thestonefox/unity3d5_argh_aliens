@@ -191,6 +191,9 @@ public class Player : MonoBehaviour {
             Turn();
             Thrust();
             DropBomb();
+        } else
+        {
+            rb.isKinematic = true;
         }
     }
 

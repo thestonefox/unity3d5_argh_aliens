@@ -12,6 +12,7 @@ public class LevelManager : MonoBehaviour {
     public Text livesText;
     public Text peepsText;
     public Image fuelIndicator;
+    public Image countdownImage;
 
     public static LevelManager instance = null;
 
@@ -25,6 +26,9 @@ public class LevelManager : MonoBehaviour {
     private GameObject[,,] buildingBlocks;
     private bool paused;
     private int alivePeeps;
+    private float countdownTimer = 0.02f;
+    private bool countdownOn = true;
+    private string nextScene;
 
     // Use this for initialization
     void Start () {
@@ -44,6 +48,7 @@ public class LevelManager : MonoBehaviour {
         InitLevelVars();
         InitPlayArea();
         ResetPlayer();
+        CountdownStart();
     }
 
     void InitLevelVars()
@@ -52,7 +57,7 @@ public class LevelManager : MonoBehaviour {
         lives = GameManager.instance.playerLives;
         maxLevelPeeps = GameManager.instance.levelPeeps;
         score = GameManager.instance.playerScore;
-        Time.timeScale = 1f;
+        nextScene = "";
     }
 
     void InitPlayArea()
@@ -67,6 +72,39 @@ public class LevelManager : MonoBehaviour {
     {
         player.transform.position = new Vector3(0f, maxBuildingHeight + 5f, 0f);
         player.GetComponent<Player>().Revive();
+    }
+
+    void CountdownStart()
+    {
+        countdownOn = true;
+        Time.timeScale = countdownTimer;
+        countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Ready", typeof(Sprite)) as Sprite;
+        countdownImage.enabled = true;
+        Invoke("CountdownReady", countdownTimer * 2);
+    }
+
+    void CountdownReady()
+    {
+        Invoke("CountdownSteady", countdownTimer);
+    }
+
+    void CountdownSteady()
+    {
+        countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Steady", typeof(Sprite)) as Sprite;
+        Invoke("CountdownGo", countdownTimer);
+    }
+
+    void CountdownGo()
+    {
+        countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Go", typeof(Sprite)) as Sprite;
+        Invoke("CountdownEnd", countdownTimer);
+    }
+
+    void CountdownEnd()
+    {
+        countdownImage.enabled = false;
+        countdownOn = false;
+        Time.timeScale = 1f;
     }
 
     void InitBuildings()
@@ -188,13 +226,16 @@ public class LevelManager : MonoBehaviour {
         {
             paused = !paused;
         }
-        if (paused)
+        if (!countdownOn)
         {
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            Time.timeScale = 1f;
+            if (paused)
+            {
+                Time.timeScale = 0f;
+            }
+            else
+            {
+                Time.timeScale = 1f;
+            }
         }
     }
 
@@ -233,7 +274,7 @@ public class LevelManager : MonoBehaviour {
 
     void CheckLevelStatus()
     {
-        if (lives < 0)
+        if (lives <= 0)
         {
             LevelEnd("GameOver");
         }
@@ -244,10 +285,18 @@ public class LevelManager : MonoBehaviour {
         }
     }
 
-    void LevelEnd(string nextScene)
+    void LevelEnd(string scene)
     {
-        Time.timeScale = 0f;
-        GameManager.instance.LoadScene(nextScene);
+        player.GetComponent<Player>().isAlive = false;
+        nextScene = scene;
+        Invoke("LoadNextScene", 0.5f);
+    }
+
+    void LoadNextScene()
+    {
+        string scene = nextScene;
+        nextScene = "";
+        GameManager.instance.LoadScene(scene);
     }
 
     void UpdateLives()

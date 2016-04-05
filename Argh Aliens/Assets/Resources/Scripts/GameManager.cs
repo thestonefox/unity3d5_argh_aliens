@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour {
 
     void OnGUI()
     {
-        transitionAlpha += transitionDirection * transitionSpeed * Time.deltaTime;
+        transitionAlpha += transitionDirection * transitionSpeed * 0.02f;
         transitionAlpha = Mathf.Clamp01(transitionAlpha);
 
         GUI.color = new Color(GUI.color.r, GUI.color.g, GUI.color.b, transitionAlpha);
