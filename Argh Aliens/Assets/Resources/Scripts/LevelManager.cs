@@ -262,10 +262,10 @@ public class LevelManager : MonoBehaviour {
     {
         if (died)
         {
-            UpdateScore(10);
+            UpdateScore(100);
         } else
         {
-            UpdateScore(50);
+            UpdateScore(500);
             AddPlayerFuel(10);
         }
         alivePeeps--;

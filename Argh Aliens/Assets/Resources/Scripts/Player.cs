@@ -337,6 +337,7 @@ public class Player : MonoBehaviour {
         playerBody.SetActive(true);
         deathParticles.SetActive(false);
         movementSpeed = 0;
+        bombDelay = 0;
         isAlive = true;
         landed = false;
         fuel = defaultFuel;

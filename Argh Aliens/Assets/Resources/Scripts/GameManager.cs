@@ -25,9 +25,13 @@ public class GameManager : MonoBehaviour {
     int transitionDirection = -1;
     string sceneToLoad = "";
 
-    void Start()
+    void Awake()
     {
         DontDestroyOnLoad(this);
+    }
+
+    void Start()
+    {        
         if (instance == null)
         {
             instance = this;

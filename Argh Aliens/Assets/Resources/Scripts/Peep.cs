@@ -38,7 +38,7 @@ public class Peep : MonoBehaviour {
 
     void OnTriggerStay(Collider collider)
     {
-        if (collider.name == "ShipBody" && collider.gameObject.transform.parent.gameObject.transform.parent.gameObject.transform.parent.GetComponent<Player>().landed)
+        if (collider.name == "ShipBody" && collider.gameObject.transform.parent.gameObject.transform.parent.gameObject.transform.parent.GetComponent<Player>().landed && isAlive)
         {
             Capture();
         }
