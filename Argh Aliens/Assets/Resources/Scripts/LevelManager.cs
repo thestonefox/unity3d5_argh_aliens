@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour {
     public GameObject playArea;
@@ -7,6 +8,10 @@ public class LevelManager : MonoBehaviour {
     public GameObject building;
     public GameObject buildingTop;
     public GameObject peep;
+    public Text scoreText;
+    public Text livesText;
+    public Text peepsText;
+    public Image fuelIndicator;
 
     public static LevelManager instance = null;
 
@@ -174,6 +179,7 @@ public class LevelManager : MonoBehaviour {
     void Update()
     {
         CheckPause();
+        UpdateGui();
     }
 
     void CheckPause()
@@ -219,7 +225,7 @@ public class LevelManager : MonoBehaviour {
         } else
         {
             UpdateScore(50);
-            AddPlayerFuel(100);
+            AddPlayerFuel(10);
         }
         alivePeeps--;
         CheckLevelStatus();
@@ -259,5 +265,15 @@ public class LevelManager : MonoBehaviour {
     void AddPlayerFuel(float fuelToAdd)
     {
         player.GetComponent<Player>().AddFuel(fuelToAdd);
+    }
+
+    void UpdateGui()
+    {
+        scoreText.text = score.ToString().PadLeft(11, '0');
+        livesText.text = lives.ToString();
+        peepsText.text = alivePeeps.ToString();
+
+        float fuelLeft = player.GetComponent<Player>().fuel / player.GetComponent<Player>().defaultFuel;
+        fuelIndicator.transform.localScale = new Vector3(fuelLeft, fuelIndicator.transform.localScale.y, fuelIndicator.transform.localScale.z);
     }
 }
