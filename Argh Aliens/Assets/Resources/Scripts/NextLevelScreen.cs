@@ -45,7 +45,6 @@ public class NextLevelScreen : MonoBehaviour {
             finalFontSize = 30;
         }
 
-
         fuelUsed.transform.localPosition = new Vector3(width / 7f, (height / 11f), 0f);
         bombsDropped.transform.localPosition = new Vector3(width / 7f, (height / 28f), 0f);
         buildingsDestroyed.transform.localPosition = new Vector3(width / 7f, -(height / 45f), 0f);

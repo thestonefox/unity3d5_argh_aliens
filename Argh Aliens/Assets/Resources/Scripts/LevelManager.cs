@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class LevelManager : MonoBehaviour {
     public GameObject playArea;
@@ -14,6 +15,8 @@ public class LevelManager : MonoBehaviour {
     public Image fuelIndicator;
     public Image countdownImage;
     public Image hud;
+    public GameObject pauseMenu;
+    public Button defaultButton;
 
     public static LevelManager instance = null;
 
@@ -26,6 +29,7 @@ public class LevelManager : MonoBehaviour {
     private Vector3 areaOffset;
     private GameObject[,,] buildingBlocks;
     private bool paused;
+    private bool hasPaused;
     private int alivePeeps;
     private float countdownTimer = 0.02f;
     private bool countdownOn = true;
@@ -243,6 +247,19 @@ public class LevelManager : MonoBehaviour {
         UpdateGui();
     }
 
+    public void UnPause()
+    {
+        paused = false;
+        hasPaused = false;
+    }
+
+    public void QuitLevel()
+    {
+        paused = false;
+        hasPaused = false;
+        GameManager.instance.LoadScene("MainMenu");
+    }
+
     void CheckPause()
     {
         if (Input.GetButtonDown("Start"))
@@ -253,10 +270,19 @@ public class LevelManager : MonoBehaviour {
         {
             if (paused)
             {
-                Time.timeScale = 0f;
+                pauseMenu.SetActive(true);
+                if (!hasPaused)
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                    EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
+                    hasPaused = true;
+                }
+                Time.timeScale = 0f;                      
             }
             else
             {
+                pauseMenu.SetActive(false);
+                hasPaused = false;
                 Time.timeScale = 1f;
             }
         }

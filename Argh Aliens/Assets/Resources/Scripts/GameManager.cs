@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour {
     public int buildingsDamaged;
     public int buildingsDestroyed;
 
+    public int startLevelPeeps = 3;
+
     public static GameManager instance = null;
 
     int transitionDrawDepth = -1000;
@@ -80,7 +82,7 @@ public class GameManager : MonoBehaviour {
         sceneToLoad = "";
         playerLives = 3;
         playerScore = 0;
-        levelPeeps = 3;
+        levelPeeps = startLevelPeeps;
         levelDimensions = new Vector3(30f, 1f, 30f);
         ResetLevel();
     }
