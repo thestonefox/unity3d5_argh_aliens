@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour {
     float transitionAlpha = 1f;
     int transitionDirection = -1;
     string sceneToLoad = "";
+    int cursorHideSet = 100;
+    int cursorHideTimer = 0;
 
     void Awake()
     {
@@ -33,7 +35,8 @@ public class GameManager : MonoBehaviour {
     }
 
     void Start()
-    {        
+    {
+        ToggleCursor(false);
         if (instance == null)
         {
             instance = this;
@@ -41,7 +44,7 @@ public class GameManager : MonoBehaviour {
         else if (instance != this)
         {
             Destroy(gameObject);
-        }        
+        }
     }
 
     void OnGUI()
@@ -75,6 +78,38 @@ public class GameManager : MonoBehaviour {
         peepsKilled = 0;
         buildingsDestroyed = 0;
         buildingsDamaged = 0;
+    }
+
+    void Update()
+    {
+        if(Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+        {
+            ToggleCursor(true);
+            cursorHideTimer = cursorHideSet;
+        }
+
+        if (cursorHideTimer > 0)
+        {
+            cursorHideTimer--;
+        } else
+        {
+            cursorHideTimer = 0;
+            ToggleCursor(false);
+        }
+    }
+
+    void ToggleCursor(bool show)
+    {
+        if (show)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     public void ResetGame()

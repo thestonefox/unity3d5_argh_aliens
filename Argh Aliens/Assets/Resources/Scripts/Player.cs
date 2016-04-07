@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class Player : MonoBehaviour {
-    public float movementMaxSpeed = 20f;
+    public float movementMaxSpeed = 8f;
     public float rotationSpeed = 180f;
-    public float movementAcceleration = 0.25f;
+    public float movementAcceleration = 0.5f;
     public float thrustPower = 50f;
     public float terminalVelocity = 5f;
     public int bombCount = 20;
