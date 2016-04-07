@@ -8,6 +8,8 @@ public class LevelManager : MonoBehaviour {
     public GameObject player;
     public GameObject building;
     public GameObject buildingTop;
+    public GameObject roadPiece;
+    public GameObject roadCrossPiece;
     public GameObject peep;
     public Text scoreText;
     public Text livesText;
@@ -162,11 +164,16 @@ public class LevelManager : MonoBehaviour {
                 Material buildingTopMaterial = Resources.Load("Materials/Buildings/towertop" + buildingMaterialIndex, typeof(Material)) as Material;
                 Material buildingRoofMaterial = Resources.Load("Materials/Buildings/roof" + buildingRoofMaterialIndex, typeof(Material)) as Material;
 
+                float buildingPosX = startPos.x + (x * (building.transform.localScale.x * 2));
+                float buildingPosZ = startPos.z - (z * (building.transform.localScale.z * 2));
+
+                InitRoadPiece(startPos, x, z, building.transform.localScale, buildingLimits);
+
                 for (int y = 0; y < buildingHeight; y++)
                 {
-                    Vector3 buildingPos = new Vector3(startPos.x + (x * (building.transform.localScale.x * 2)),
-                                                      startPos.y + (y * building.transform.localScale.y),
-                                                      startPos.z - (z * (building.transform.localScale.z * 2)));
+                    float buildingPosY = startPos.y + (y * building.transform.localScale.y);
+
+                    Vector3 buildingPos = new Vector3(buildingPosX, buildingPosY, buildingPosZ);
 
 
                     GameObject buildingObject = new GameObject();
@@ -204,6 +211,72 @@ public class LevelManager : MonoBehaviour {
                 currentLocation++;
             }
         }
+    }
+
+    void InitRoadPiece(Vector3 startPos, float x, float z, Vector3 building, Vector3 limits)
+    {
+        float roadPosX = startPos.x + (x * (building.x * 2));
+        float roadPosZ = startPos.z - (z * (building.z * 2));
+        int extendedRoads = 15;
+
+        if (x < limits.x-1 && z > 0)
+        {
+            Instantiate(roadPiece, new Vector3(roadPosX, 0f, roadPosZ + building.z), Quaternion.identity);
+            Instantiate(roadPiece, new Vector3(roadPosX + building.x, 0f, roadPosZ), Quaternion.Euler(new Vector3(0f, 90f, 0f)));
+            Instantiate(roadCrossPiece, new Vector3(roadPosX + building.x, 0f, roadPosZ + building.z), Quaternion.identity);
+        }
+
+        if (x == limits.x -1  && z > 0)
+        {
+            Instantiate(roadPiece, new Vector3(roadPosX, 0f, roadPosZ + building.z), Quaternion.identity);
+            for (int c = 1; c < extendedRoads; c++)
+            {
+                ChangeRoadColor(Instantiate(roadPiece, new Vector3(roadPosX + (building.x * c), 0f, roadPosZ + building.z), Quaternion.identity) as GameObject, c);
+            }
+        }
+
+        if (z == 0 && x < limits.x-1)
+        {
+            Instantiate(roadPiece, new Vector3(roadPosX + building.x, 0f, roadPosZ), Quaternion.Euler(new Vector3(0f, 90f, 0f)));
+            for (int c = 1; c < extendedRoads; c++)
+            {
+                ChangeRoadColor(Instantiate(roadPiece, new Vector3(roadPosX + building.x, 0f, roadPosZ + (building.z * c)), Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject, c);
+            }
+        }
+
+        if (x == 0 && z > 0)
+        {            
+            for (int c = 1; c < extendedRoads; c++)
+            {
+                ChangeRoadColor(Instantiate(roadPiece, new Vector3(roadPosX - ((building.x) * c), 0f, roadPosZ + building.z), Quaternion.identity) as GameObject, c);
+            }
+        }
+
+        if (z == limits.x-1 && x < limits.z-1)
+        {
+            for (int c = 1; c < extendedRoads; c++)
+            {
+                ChangeRoadColor(Instantiate(roadPiece, new Vector3(roadPosX + building.x, 0f, roadPosZ - (building.z * c)), Quaternion.Euler(new Vector3(0f, 90f, 0f))) as GameObject, c);
+            }
+        }
+    }
+
+    void ChangeRoadColor(GameObject road, int position)
+    {
+        Color[] fades = new Color[14];
+        for(int c = 0; c < fades.Length; c++)
+        {
+            float shade = 0.9f - (0.1f * c);
+            fades[c] = new Color(shade, shade, shade);
+        }
+
+        GameObject roadBit = road.transform.Find("Road").gameObject;
+        GameObject sideWalk1 = road.transform.Find("Sidewalk1").gameObject;
+        GameObject sideWalk2 = road.transform.Find("Sidewalk2").gameObject;
+
+        roadBit.GetComponent<MeshRenderer>().material.color = fades[position-1];
+        sideWalk1.GetComponent<MeshRenderer>().material.color = fades[position-1];
+        sideWalk2.GetComponent<MeshRenderer>().material.color = fades[position-1];
     }
 
     int[] CreatePeepLocations(int playArea, int maxPeeps)
