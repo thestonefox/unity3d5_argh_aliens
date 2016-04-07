@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
     public float terminalVelocity = 5f;
     public int bombCount = 20;
     public bool isAlive;
-    public float defaultFuel = 250f;
+    public float defaultFuel = 300f;
     public bool landed;
     public float fuel;
 

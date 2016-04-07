@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour {
         playerLives = 3;
         playerScore = 0;
         levelPeeps = startLevelPeeps;
-        levelDimensions = new Vector3(30f, 1f, 30f);
+        levelDimensions = new Vector3(35f, 1f, 35f);
         ResetLevel();
     }
 
