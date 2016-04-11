@@ -7,10 +7,18 @@ public class GameOverScreen : MonoBehaviour {
     public Text finalLevel;
     public Text finalScore;
     public Image continueImage;
+    public AudioClip selectSound;
+    public AudioClip scoreSound;
 
     private int scoreDisplayTimer;
     private int scoreDisplayInterval = 50;
     private string levelReached;
+    private AudioSource source;
+
+    void Awake()
+    {
+        source = GetComponent<AudioSource>();
+    }
 
     // Use this for initialization
     void Start () {
@@ -42,8 +50,9 @@ public class GameOverScreen : MonoBehaviour {
         LayoutGUI();
         if (Input.GetButtonDown("Jump"))
         {
+            source.PlayOneShot(selectSound);
             if (scoreDisplayTimer >= 4 * scoreDisplayInterval)
-            {
+            {                
                 GameManager.instance.LoadScene("MainMenu");
             }
             else
@@ -70,6 +79,7 @@ public class GameOverScreen : MonoBehaviour {
     {
         if (timer >= (interval * intervalStep) && !text.enabled)
         {
+            source.PlayOneShot(scoreSound);
             text.enabled = true;
             text.text = value;
         }

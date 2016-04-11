@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour {
     public static GameManager instance = null;
 
     int transitionDrawDepth = -1000;
-    float transitionAlpha = 1f;
+    public float transitionAlpha = 1f;
     int transitionDirection = -1;
     string sceneToLoad = "";
     int cursorHideSet = 100;

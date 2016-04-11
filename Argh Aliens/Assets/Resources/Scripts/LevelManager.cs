@@ -19,13 +19,24 @@ public class LevelManager : MonoBehaviour {
     public Image hud;
     public GameObject pauseMenu;
     public Button defaultButton;
+    public AudioSource levelMusic;
+
+    public AudioClip selectSound;
+    public AudioClip explosion1Sound;
+    public AudioClip explosion2Sound;
+    public AudioClip screamSound;
+    public AudioClip scoreSound;
+    public AudioClip rewardSound;
+    public AudioClip readySound;
+    public AudioClip steadySound;
+    public AudioClip goSound;
 
     public static LevelManager instance = null;
 
     private Vector3 levelDimensions;
     private int lives;
     private int maxLevelPeeps;
-    private float maxBuildingHeight = 20f;
+    private float maxBuildingHeight = 15f;
     private int score;
 
     private Vector3 areaOffset;
@@ -36,6 +47,13 @@ public class LevelManager : MonoBehaviour {
     private float countdownTimer = 0.02f;
     private bool countdownOn = true;
     private string nextScene;
+    private bool levelEnd = false;
+    private AudioSource source;
+
+    void Awake()
+    {
+        source = GetComponent<AudioSource>();
+    }
 
     // Use this for initialization
     void Start () {
@@ -87,6 +105,7 @@ public class LevelManager : MonoBehaviour {
         maxLevelPeeps = GameManager.instance.levelPeeps;
         score = GameManager.instance.playerScore;
         nextScene = "";
+        levelEnd = false;
     }
 
     void InitPlayArea()
@@ -109,28 +128,32 @@ public class LevelManager : MonoBehaviour {
         Time.timeScale = countdownTimer;
         countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Ready", typeof(Sprite)) as Sprite;
         countdownImage.enabled = true;
-        Invoke("CountdownReady", countdownTimer * 2);
+        Invoke("CountdownReady", countdownTimer);
     }
 
     void CountdownReady()
     {
-        Invoke("CountdownSteady", countdownTimer);
+        source.PlayOneShot(readySound);
+        Invoke("CountdownSteady", countdownTimer * 1.5f);
     }
 
     void CountdownSteady()
     {
+        source.PlayOneShot(steadySound);
         countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Steady", typeof(Sprite)) as Sprite;
-        Invoke("CountdownGo", countdownTimer);
+        Invoke("CountdownGo", countdownTimer * 2f);
     }
 
     void CountdownGo()
     {
+        source.PlayOneShot(goSound);
+        levelMusic.Play();
         countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Go", typeof(Sprite)) as Sprite;
         Invoke("CountdownEnd", countdownTimer);
     }
 
     void CountdownEnd()
-    {
+    {        
         countdownImage.enabled = false;
         countdownOn = false;
         Time.timeScale = 1f;
@@ -328,6 +351,7 @@ public class LevelManager : MonoBehaviour {
 
     public void QuitLevel()
     {
+        source.PlayOneShot(selectSound);
         paused = false;
         hasPaused = false;
         GameManager.instance.LoadScene("MainMenu");
@@ -337,6 +361,8 @@ public class LevelManager : MonoBehaviour {
     {
         if (Input.GetButtonDown("Start"))
         {
+            source.PlayOneShot(selectSound);
+            player.gameObject.GetComponent<Player>().StopSounds();
             paused = !paused;
         }
         if (!countdownOn)
@@ -363,18 +389,22 @@ public class LevelManager : MonoBehaviour {
 
     public void BlowUpBuildingAbove(Vector3 coords)
     {
+        source.PlayOneShot(explosion2Sound);
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y + 1, (int)coords.z];
         buildingObject.GetComponent<BuildingBlock>().Destroy(false);
     }
 
     public void SetFireBuildingBelow(Vector3 coords)
     {
+        source.PlayOneShot(explosion2Sound);
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y - 1, (int)coords.z];
         buildingObject.GetComponent<BuildingBlock>().OnFire();
     }
 
     public void PlayerDie()
     {
+        player.gameObject.GetComponent<Player>().StopSounds();
+        source.PlayOneShot(explosion1Sound);
         UpdateLives();
         CheckLevelStatus();
         Invoke("ResetPlayer", 1f);
@@ -382,11 +412,13 @@ public class LevelManager : MonoBehaviour {
 
     public void GotPeep(bool died)
     {
+        source.PlayOneShot(screamSound);
         if (died)
         {
             UpdateScore(100);
         } else
         {
+            source.PlayOneShot(scoreSound);
             UpdateScore(500);
             AddPlayerFuel(10);
         }
@@ -396,19 +428,23 @@ public class LevelManager : MonoBehaviour {
 
     void CheckLevelStatus()
     {
-        if (lives <= 0)
+        if (!levelEnd)
         {
-            LevelEnd("GameOver");
-        }
+            if (lives <= 0)
+            {
+                LevelEnd("GameOver");
+            }
 
-        if (alivePeeps <= 0)
-        {
-            LevelEnd("NextLevel");
+            if (lives > 0 && alivePeeps <= 0)
+            {
+                LevelEnd("NextLevel");
+            }
         }
     }
 
     void LevelEnd(string scene)
     {
+        levelEnd = true;
         player.GetComponent<Player>().isAlive = false;
         nextScene = scene;
         Invoke("LoadNextScene", 0.5f);

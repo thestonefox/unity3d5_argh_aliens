@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class Player : MonoBehaviour {
-    public float movementMaxSpeed = 8f;
+    public float movementMaxSpeed = 6f;
     public float rotationSpeed = 180f;
-    public float movementAcceleration = 0.5f;
+    public float movementAcceleration = 1f;
     public float thrustPower = 50f;
     public float terminalVelocity = 5f;
     public int bombCount = 20;
@@ -39,10 +39,12 @@ public class Player : MonoBehaviour {
     private int currentBomb = 0;
     private int bombDelay = 0;
     private int bombDelayTimer = 10;    
-    private float speedDeadzone = 1f;    
+    private float speedDeadzone = 1f;
+    private AudioSource engineSound;
 
     void Awake()
     {
+        engineSound = GetComponent<AudioSource>();
         CreateCameras();
         UpdateCameraView();
         CreateBombs();
@@ -259,6 +261,11 @@ public class Player : MonoBehaviour {
         rb.MoveRotation(rb.rotation * turnRotation);
     }
 
+    public void StopSounds()
+    {
+        engineSound.Stop();
+    }
+
     void Thrust()
     {        
         if (Input.GetButton("Jump") && fuel > 0)
@@ -268,9 +275,12 @@ public class Player : MonoBehaviour {
             if (!engineParticleSystem.IsAlive())
             {
                 engineParticleSystem.startLifetime = 0.8f;
-                engineParticleSystem.Play();
+                engineParticleSystem.Play();                
             }
-
+            if (!engineSound.isPlaying)
+            {
+                engineSound.Play();
+            }
             rb.AddForce(Vector3.up * thrustPower);
             fuel--;
             GameManager.instance.fuelUsed++;
@@ -279,6 +289,7 @@ public class Player : MonoBehaviour {
         {
             if (hasEngineFired)
             {
+                engineSound.Stop();
                 engineParticleSystem.startLifetime = 0.5f;
                 engineParticleSystem.loop = false;
             }
@@ -287,7 +298,7 @@ public class Player : MonoBehaviour {
 
     void DropBomb()
     {
-        if (!landed && Input.GetButtonDown("Fire2") && bombDelay == 0)
+        if (!landed && Input.GetButtonDown("Fire2") && bombDelay <= 0)
         {
             bombDelay = bombDelayTimer;
             bombs[currentBomb].SetActive(true);

@@ -11,6 +11,8 @@ public class NextLevelScreen : MonoBehaviour {
     public Text peepsCaptured;
     public Text totalScore;
     public Image continueImage;
+    public AudioClip selectSound;
+    public AudioClip scoreSound;
 
     private int finalScore = 0;
     private int actualTotalScore = 0;
@@ -18,9 +20,15 @@ public class NextLevelScreen : MonoBehaviour {
     private int scoreDisplayInterval = 50;
     private int totalScoreIncrements = 0;
     private int totalScoreCap = 0;
+    private AudioSource source;
 
-	// Use this for initialization
-	void Start () {
+    void Awake()
+    {
+        source = GetComponent<AudioSource>();
+    }
+
+    // Use this for initialization
+    void Start () {
         scoreDisplayTimer = 0;
         actualTotalScore = 0;
         finalScore = GameManager.instance.playerScore;
@@ -67,6 +75,7 @@ public class NextLevelScreen : MonoBehaviour {
         LayoutGUI();
         if(Input.GetButtonDown("Jump"))
         {
+            source.PlayOneShot(selectSound);
             if (scoreDisplayTimer >= 7 * scoreDisplayInterval)
             {
                 GameManager.instance.NextLevel();
@@ -114,6 +123,7 @@ public class NextLevelScreen : MonoBehaviour {
     {
         if (timer >= (interval * intervalStep) && !text.enabled)
         {
+            source.PlayOneShot(scoreSound);
             float actualScore = (score * multiplier) * direction;
             string displayScore = (score * direction).ToString();
             totalScoreIncrements = CalcIncrements(actualScore, scoreDisplayInterval);
