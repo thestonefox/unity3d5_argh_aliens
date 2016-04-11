@@ -38,8 +38,8 @@ public class GameOverScreen : MonoBehaviour {
             scoreFontSize = 28;
         }
 
-        finalLevel.transform.localPosition = new Vector3(0f, (height / 10.5f), 0f);
-        finalScore.transform.localPosition = new Vector3(0f, -(height / 15.5f), 0f);
+        finalLevel.transform.localPosition = new Vector3(0f, (height / 10.7f), 0f);
+        finalScore.transform.localPosition = new Vector3(0f, -(height / 15.7f), 0f);
 
         finalLevel.fontSize = scoreFontSize;
         finalScore.fontSize = scoreFontSize;
