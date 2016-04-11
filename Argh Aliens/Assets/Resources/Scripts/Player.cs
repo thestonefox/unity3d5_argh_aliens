@@ -70,9 +70,9 @@ public class Player : MonoBehaviour {
 
         cameraPositions[0] = new Vector3(0f, 1.5f, -4f);
         cameraRotations[0] = new Vector3(25f, 0f, 0f);
-        cameraRayPositions[0] = new Vector3(0f, 1.7f, -2.5f);
+        cameraRayPositions[0] = new Vector3(0f, 1.7f, -3.5f);
         cameraRayRotations[0] = new Vector3(5f, 0f, 0f);
-        cameraRayScales[0] = new Vector3(2f, 2.5f, 4f);
+        cameraRayScales[0] = new Vector3(1.5f, 2.5f, 6f);
 
         cameraPositions[1] = new Vector3(0f, 7f, 0f);
         cameraRotations[1] = new Vector3(90f, 0f, 0f);
@@ -146,7 +146,7 @@ public class Player : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter(Collider collider)
+    void OnTriggerStay(Collider collider)
     {
         if (collider.transform.name.Contains("BuildingBlock"))
         {
