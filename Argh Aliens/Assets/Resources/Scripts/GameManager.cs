@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour {
     public int startLevelPeeps = 3;
     public int startLevelPeepsRPG = -2;
 
+    public int nextExtraLifeBarrier;
+    public int nextExtraLifeAt = 50000;
+
     public static GameManager instance = null;
 
     int transitionDrawDepth = -1000;
@@ -119,6 +122,7 @@ public class GameManager : MonoBehaviour {
         sceneToLoad = "";
         playerLives = 3;
         playerScore = 0;
+        nextExtraLifeBarrier = nextExtraLifeAt;
         levelPeeps = startLevelPeeps;
         levelPeepsRPG = startLevelPeepsRPG;
         levelDimensions = new Vector3(35f, 1f, 35f);

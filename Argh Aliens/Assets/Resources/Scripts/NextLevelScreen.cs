@@ -136,6 +136,12 @@ public class NextLevelScreen : MonoBehaviour {
                 suffix = " * " + multiplier.ToString();
             }
             text.text = displayScore + suffix;
+
+            if (finalScore >= GameManager.instance.nextExtraLifeBarrier)
+            {
+                GameManager.instance.nextExtraLifeBarrier += GameManager.instance.nextExtraLifeAt;
+                GameManager.instance.playerLives+=1;
+            }
         }
     }
 

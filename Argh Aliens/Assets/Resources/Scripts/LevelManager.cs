@@ -489,6 +489,13 @@ public class LevelManager : MonoBehaviour {
     {
         score += scoreToAdd;
         GameManager.instance.playerScore = score;
+        if (score >= GameManager.instance.nextExtraLifeBarrier)
+        {
+            GameManager.instance.nextExtraLifeBarrier += GameManager.instance.nextExtraLifeAt;
+            source.PlayOneShot(rewardSound, 0.8f);
+            lives++;
+            GameManager.instance.playerLives = lives;
+        }
     }
 
     void AddPlayerFuel(float fuelToAdd)
