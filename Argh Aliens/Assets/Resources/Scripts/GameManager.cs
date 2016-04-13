@@ -33,6 +33,10 @@ public class GameManager : MonoBehaviour {
     string sceneToLoad = "";
     int cursorHideSet = 100;
     int cursorHideTimer = 0;
+    int levelGrowMarker = 10;
+    float levelStartSize = 35f;
+    float levelMaxSize = 60f;
+    float levelGrowBy = 5f;
 
     void Awake()
     {
@@ -83,6 +87,16 @@ public class GameManager : MonoBehaviour {
         peepsKilled = 0;
         buildingsDestroyed = 0;
         buildingsDamaged = 0;
+        GrowLevel();
+    }
+
+    void GrowLevel()
+    {
+        if (CurrentLevel() % levelGrowMarker == 0 && (levelDimensions.x + levelGrowBy) <= levelMaxSize && (levelDimensions.z + levelGrowBy) <= levelMaxSize)
+        {
+            levelDimensions.x = levelDimensions.x + levelGrowBy;
+            levelDimensions.z = levelDimensions.z + levelGrowBy;
+        }
     }
 
     void Update()
@@ -117,6 +131,11 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public int CurrentLevel()
+    {
+        return ((levelPeeps - startLevelPeeps) + 1);
+    }
+
     public void ResetGame()
     {
         sceneToLoad = "";
@@ -125,7 +144,7 @@ public class GameManager : MonoBehaviour {
         nextExtraLifeBarrier = nextExtraLifeAt;
         levelPeeps = startLevelPeeps;
         levelPeepsRPG = startLevelPeepsRPG;
-        levelDimensions = new Vector3(35f, 1f, 35f);
+        levelDimensions = new Vector3(levelStartSize, 1f, levelStartSize);
         ResetLevel();
     }
 

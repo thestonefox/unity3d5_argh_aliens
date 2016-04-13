@@ -29,7 +29,7 @@ public class GameOverScreen : MonoBehaviour {
 
     void LayoutGUI()
     {
-        levelReached = ((GameManager.instance.levelPeeps - GameManager.instance.startLevelPeeps)+1).ToString();
+        levelReached = GameManager.instance.CurrentLevel().ToString();
         float width = Screen.width;
         float height = Screen.height;
         int scoreFontSize = 50;
