@@ -88,7 +88,7 @@ public class NextLevelScreen : MonoBehaviour {
 
         EnableScore(scoreDisplayTimer, scoreDisplayInterval, 0.75, fuelUsed, GameManager.instance.fuelUsed, -1, 1);
         EnableScore(scoreDisplayTimer, scoreDisplayInterval, 2, bombsDropped, GameManager.instance.bombsDropped, -1, 1);
-        EnableScore(scoreDisplayTimer, scoreDisplayInterval, 3, buildingsDestroyed, GameManager.instance.buildingsDestroyed, -1, 1000);
+        EnableScore(scoreDisplayTimer, scoreDisplayInterval, 3, buildingsDestroyed, GameManager.instance.buildingsDamaged, -1, 1);
         EnableScore(scoreDisplayTimer, scoreDisplayInterval, 4, peepsKilled, GameManager.instance.peepsKilled, 1, 100);
         EnableScore(scoreDisplayTimer, scoreDisplayInterval, 5, peepsCaptured, GameManager.instance.peepsCaptured, 1, 500);
 
@@ -123,7 +123,7 @@ public class NextLevelScreen : MonoBehaviour {
     {
         if (timer >= (interval * intervalStep) && !text.enabled)
         {
-            source.PlayOneShot(scoreSound);
+            source.PlayOneShot(scoreSound, 0.2f);
             float actualScore = (score * multiplier) * direction;
             string displayScore = (score * direction).ToString();
             totalScoreIncrements = CalcIncrements(actualScore, scoreDisplayInterval);

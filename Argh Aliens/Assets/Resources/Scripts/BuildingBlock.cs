@@ -6,6 +6,7 @@ public class BuildingBlock : MonoBehaviour {
     public GameObject explosionParticles;
     public float buildingHeight;
     public GameObject peep;
+    public string peepType;
 
     void OnCollisionEnter(Collision collision)
     {
@@ -20,7 +21,14 @@ public class BuildingBlock : MonoBehaviour {
             gameObject.SetActive(false);
             if (peep != null)
             {
-                peep.GetComponent<Peep>().Die();
+                switch(peepType)
+                {
+                    case "peep": peep.GetComponent<Peep>().Die();
+                                 break;
+                    case "peepRPG":
+                        peep.GetComponent<PeepRPG>().Die();
+                        break;
+                }                
             }
 
             if (setFire && coords.y > 0)

@@ -24,7 +24,7 @@ public class PlayerBomb : MonoBehaviour {
     void OnCollisionEnter(Collision collision)
     {
         source.Stop();
-        source.PlayOneShot(explosionSound);
+        source.PlayOneShot(explosionSound, 0.2f);
         if (collision.collider.transform.parent != null && collision.collider.transform.parent.name.Contains("BuildingTop"))
         {
             BuildingBlock buildingTop = collision.collider.transform.parent.GetComponent<BuildingBlock>();
@@ -52,5 +52,6 @@ public class PlayerBomb : MonoBehaviour {
         {
             mesh.enabled = on;
         }
+        gameObject.transform.Find("Capsule").GetComponent<BoxCollider>().enabled = on;
     }
 }

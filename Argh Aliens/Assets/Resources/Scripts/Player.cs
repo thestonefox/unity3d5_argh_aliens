@@ -196,6 +196,7 @@ public class Player : MonoBehaviour {
         } else
         {
             rb.isKinematic = true;
+            engineSound.Stop();
         }
     }
 
@@ -285,6 +286,7 @@ public class Player : MonoBehaviour {
             fuel--;
             GameManager.instance.fuelUsed++;
             hasEngineFired = true;
+            landed = false;
         } else
         {
             if (hasEngineFired)

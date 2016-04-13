@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour {
     public GameObject roadPiece;
     public GameObject roadCrossPiece;
     public GameObject peep;
+    public GameObject peepRPG;
     public Text scoreText;
     public Text livesText;
     public Text peepsText;
@@ -36,6 +37,7 @@ public class LevelManager : MonoBehaviour {
     private Vector3 levelDimensions;
     private int lives;
     private int maxLevelPeeps;
+    private int maxLevelPeepsRPG;
     private float maxBuildingHeight = 15f;
     private int score;
 
@@ -102,7 +104,8 @@ public class LevelManager : MonoBehaviour {
     {
         levelDimensions = GameManager.instance.levelDimensions;
         lives = GameManager.instance.playerLives;
-        maxLevelPeeps = GameManager.instance.levelPeeps;
+        maxLevelPeepsRPG = (GameManager.instance.levelPeepsRPG > 0 ? GameManager.instance.levelPeepsRPG : 0) ;
+        maxLevelPeeps = GameManager.instance.levelPeeps + maxLevelPeepsRPG;
         score = GameManager.instance.playerScore;
         nextScene = "";
         levelEnd = false;
@@ -113,7 +116,6 @@ public class LevelManager : MonoBehaviour {
         areaOffset = new Vector3(levelDimensions.x / 10, 0f, levelDimensions.z / 10);
         playArea.transform.localScale = levelDimensions;
         InitBuildings();
-        alivePeeps = maxLevelPeeps;
     }
 
     void ResetPlayer()
@@ -133,20 +135,20 @@ public class LevelManager : MonoBehaviour {
 
     void CountdownReady()
     {
-        source.PlayOneShot(readySound);
+        source.PlayOneShot(readySound, 0.2f);
         Invoke("CountdownSteady", countdownTimer * 1.5f);
     }
 
     void CountdownSteady()
     {
-        source.PlayOneShot(steadySound);
+        source.PlayOneShot(steadySound, 0.2f);
         countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Steady", typeof(Sprite)) as Sprite;
         Invoke("CountdownGo", countdownTimer * 2f);
     }
 
     void CountdownGo()
     {
-        source.PlayOneShot(goSound);
+        source.PlayOneShot(goSound, 0.2f);
         levelMusic.Play();
         countdownImage.sprite = Resources.Load("Materials/GUI/Countdown/Textures/Go", typeof(Sprite)) as Sprite;
         Invoke("CountdownEnd", countdownTimer);
@@ -219,10 +221,24 @@ public class LevelManager : MonoBehaviour {
 
                         if (System.Array.IndexOf(peepLocations, currentLocation) >= 0)
                         {
-                            GameObject peep = InitPeep(buildingObject.transform.localPosition);
+                            string peepType = "peep";
+                            GameObject peepClone;
+                            if (maxLevelPeepsRPG > 0)
+                            {
+                                maxLevelPeepsRPG--;
+                                peepType = "peepRPG";
+                                peepClone = InitPeep(peepRPG, buildingObject.transform.localPosition);
+                            } else
+                            {
+                                peepType = "peep";
+                                peepClone = InitPeep(peep, buildingObject.transform.localPosition);
+                            }
+
                             float peepRotation = Random.Range(0, 4);
-                            peep.transform.Rotate(0f, 90 * peepRotation, 0f);
-                            buildingObject.GetComponent<BuildingBlock>().peep = peep;
+                            peepClone.transform.Rotate(0f, 90 * peepRotation, 0f);
+
+                            buildingObject.GetComponent<BuildingBlock>().peep = peepClone;
+                            buildingObject.GetComponent<BuildingBlock>().peepType = peepType;
                         }
                     }
 
@@ -308,6 +324,7 @@ public class LevelManager : MonoBehaviour {
         {
             maxPeeps = playArea;
         }
+        alivePeeps = maxPeeps;
 
         int[] locations = new int[playArea];
 
@@ -332,9 +349,9 @@ public class LevelManager : MonoBehaviour {
         return positions;
     }
 
-    GameObject InitPeep(Vector3 position)
+    GameObject InitPeep(GameObject peepType, Vector3 position)
     {
-        return Instantiate(peep, position + new Vector3(0f, 0.7f, 0f), Quaternion.identity) as GameObject;
+        return Instantiate(peepType, position + new Vector3(0f, 0.7f, 0f), Quaternion.identity) as GameObject;
     }
 
     void Update()
@@ -389,14 +406,14 @@ public class LevelManager : MonoBehaviour {
 
     public void BlowUpBuildingAbove(Vector3 coords)
     {
-        source.PlayOneShot(explosion2Sound);
+        source.PlayOneShot(explosion2Sound, 0.2f);
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y + 1, (int)coords.z];
         buildingObject.GetComponent<BuildingBlock>().Destroy(false);
     }
 
     public void SetFireBuildingBelow(Vector3 coords)
     {
-        source.PlayOneShot(explosion2Sound);
+        source.PlayOneShot(explosion2Sound, 0.2f);
         GameObject buildingObject = buildingBlocks[(int)coords.x, (int)coords.y - 1, (int)coords.z];
         buildingObject.GetComponent<BuildingBlock>().OnFire();
     }
@@ -404,7 +421,7 @@ public class LevelManager : MonoBehaviour {
     public void PlayerDie()
     {
         player.gameObject.GetComponent<Player>().StopSounds();
-        source.PlayOneShot(explosion1Sound);
+        source.PlayOneShot(explosion1Sound, 0.7f);
         UpdateLives();
         CheckLevelStatus();
         Invoke("ResetPlayer", 1f);
@@ -412,18 +429,23 @@ public class LevelManager : MonoBehaviour {
 
     public void GotPeep(bool died)
     {
-        source.PlayOneShot(screamSound);
+        source.PlayOneShot(screamSound, 0.7f);
         if (died)
         {
             UpdateScore(100);
         } else
         {
-            source.PlayOneShot(scoreSound);
+            source.PlayOneShot(scoreSound, 0.5f);
             UpdateScore(500);
             AddPlayerFuel(10);
         }
         alivePeeps--;
         CheckLevelStatus();
+    }
+
+    public Vector3 GetPlayerPosition()
+    {
+        return player.transform.position;
     }
 
     void CheckLevelStatus()

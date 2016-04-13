@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour {
     public int playerLives;
     public int playerScore;
     public int levelPeeps;
+    public int levelPeepsRPG;
     public Vector3 levelDimensions;
 
     public Texture2D transitionTexture;
@@ -19,6 +20,7 @@ public class GameManager : MonoBehaviour {
     public int buildingsDestroyed;
 
     public int startLevelPeeps = 3;
+    public int startLevelPeepsRPG = -2;
 
     public static GameManager instance = null;
 
@@ -118,6 +120,7 @@ public class GameManager : MonoBehaviour {
         playerLives = 3;
         playerScore = 0;
         levelPeeps = startLevelPeeps;
+        levelPeepsRPG = startLevelPeepsRPG;
         levelDimensions = new Vector3(35f, 1f, 35f);
         ResetLevel();
     }
@@ -126,6 +129,7 @@ public class GameManager : MonoBehaviour {
     {
         ResetLevel();
         levelPeeps++;
+        levelPeepsRPG++;
     }
 
     public float BeginTransition(int direction)

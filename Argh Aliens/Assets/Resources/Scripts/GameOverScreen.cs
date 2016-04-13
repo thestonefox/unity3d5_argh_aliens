@@ -79,7 +79,7 @@ public class GameOverScreen : MonoBehaviour {
     {
         if (timer >= (interval * intervalStep) && !text.enabled)
         {
-            source.PlayOneShot(scoreSound);
+            source.PlayOneShot(scoreSound, 0.2f);
             text.enabled = true;
             text.text = value;
         }
